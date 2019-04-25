@@ -1,18 +1,27 @@
 { pkgs
+, extraLibraries ? []
+, extraPacks ? []
 }:
 with pkgs;
+let
+  version = "8.1.4";
+  packInstall = swiplPath: pack:
+    ''${swiplPath}/bin/swipl -g "pack_install(${pack}, [package_directory(\"${swiplPath}/lib/swipl/pack\"), silent(true), interactive(false)])." -t "halt."
+    '';
+in
 stdenv.mkDerivation {
   name = "swi-prolog";
 
   src = fetchgit {
     url = "https://github.com/SWI-Prolog/swipl-devel";
-    rev = "V8.1.4";
+    rev = "V${version}";
     sha256 = "0qxa6f5dypwczxajlf0l736adbjb17cbak3qsh5g04hpv2bxm6dh";
   };
 
-  buildInputs = [ cmake jdk gmp readline openssl libjpeg unixODBC
+  buildInputs = [ cacert git cmake gmp readline openssl
     libarchive libyaml db pcre libedit libossp_uuid
-    zlib freetype pkgconfig fontconfig ]
+    zlib pkgconfig ]
+  ++ extraLibraries
   ++ stdenv.lib.optional stdenv.isDarwin makeWrapper;
 
   hardeningDisable = [ "format" ];
@@ -31,7 +40,12 @@ stdenv.mkDerivation {
     cd ../
     make
     make install
-  '';
+    make clean
+    mkdir -p $out/lib/swipl/pack
+  ''
+  + builtins.concatStringsSep "\n"
+  ( builtins.map (packInstall "$out") extraPacks
+  );
 
   # For macOS: still not fixed in upstream: "abort trap 6" when called
   # through symlink, so wrap binary.

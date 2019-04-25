@@ -1,12 +1,8 @@
-:- use_module(library(process)).
+:- use_module(library(by_unix)).
 :- initialization main.
 
 meminfo(Key, Value) :-
-    setup_call_cleanup(
-        process_create(path(cat), ["/proc/meminfo"], [stdout(pipe(Out))]),
-        read_string(Out, _, Output),
-        close(Out)),
-    split_string(Output, "\n", "", Ls),
+    Ls @@ cat(/proc/meminfo),
     member(L, Ls),
     split_string(L, ":", "", [Key,T|_]),
     split_string(T, " ", "", Ws),

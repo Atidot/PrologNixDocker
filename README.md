@@ -20,5 +20,5 @@ Free: 3943040 / Total: 16275968
 docker run prolog-nix-docker
 Free: 3941964 / Total: 16275968
 ~~~
-## TODO
-Implement a `ghcWithPackages`-like nix supoprt for Prolog
+## Automatic install of Packs
+- Using `extraPacks` and `extraLibraries`

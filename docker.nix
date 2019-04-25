@@ -1,8 +1,11 @@
 { nixpkgs ? import <nixpkgs> {} }:
 with nixpkgs;
 let
-  swiProlog = import ./swipl.nix { pkgs = nixpkgs; };
-  script    = copyPathToStore ./test.pl;
+  script = copyPathToStore ./test.pl;
+  swiProlog = import ./swipl.nix
+                     { pkgs = nixpkgs;
+                       extraPacks = [ "by_unix" ];
+                     };
 in
 dockerTools.buildImage {
   name = "prolog-nix-docker";
